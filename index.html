@@ -39,17 +39,17 @@
     <h2>Web Site live check </h2>
     
     <div class="stats" id="statBox" style="display:none;">
-        <div style="color:#2c3e50">মোট: <span id="total">0</span></div>
-        <div style="color:#27ae60">লাইভ: <span id="live">0</span></div>
-        <div style="color:#e74c3c">ডেড/ব্লকড: <span id="dead">0</span></div>
+        <div style="color:#2c3e50">Totall: <span id="total">0</span></div>
+        <div style="color:#27ae60">Live: <span id="live">0</span></div>
+        <div style="color:#e74c3c">Dead: <span id="dead">0</span></div>
     </div>
 
-    <textarea id="inputList" autocomplete="off" spellcheck="false" placeholder="এখানে ওয়েবসাইটের লিস্ট পেস্ট করুন..."></textarea>
+    <textarea id="inputList" autocomplete="off" spellcheck="false" placeholder="Paste the website list here...."></textarea>
     
     <div class="btn-group">
-        <button class="start-btn" onclick="startChecking()">চেক শুরু করুন</button>
-        <button class="filter-btn" id="filterBtn" onclick="toggleDead()">শুধু Dead দেখান</button>
-        <button class="reset-btn" onclick="resetAll()">সব ক্লিয়ার (Reset)</button>
+        <button class="start-btn" onclick="startChecking()">Start checking.</button>
+        <button class="filter-btn" id="filterBtn" onclick="toggleDead()">Show only dead websites.</button>
+        <button class="reset-btn" onclick="resetAll()">Clear all. (Reset)</button>
     </div>
 
     <table id="resultTable">
@@ -116,7 +116,7 @@
         if (activeChecking) return;
         const data = document.getElementById('inputList').value;
         const lines = [...new Set(data.split('\n').map(l => l.trim()).filter(l => l !== ""))];
-        if (lines.length === 0) return alert("লিস্ট ফাঁকা!");
+        if (lines.length === 0) return alert("The list is empty.");
 
         const tbody = document.querySelector('#resultTable tbody');
         tbody.innerHTML = "";
@@ -153,7 +153,7 @@
             document.getElementById('dead').innerText = dCount;
         }
         activeChecking = false;
-        alert("চেকিং সম্পন্ন হয়েছে!");
+        alert("Checking completed!");
     }
 
     function toggleDead() {
@@ -162,10 +162,10 @@
         rows.forEach(r => {
             if (onlyDeadVisible) {
                 r.style.display = r.classList.contains('dead-row') ? 'table-row' : 'none';
-                document.getElementById('filterBtn').innerText = "সবগুলো দেখান";
+                document.getElementById('filterBtn').innerText = "Show all.";
             } else {
                 r.style.display = 'table-row';
-                document.getElementById('filterBtn').innerText = "শুধু Dead দেখান";
+                document.getElementById('filterBtn').innerText = "Show only dead websites.";
             }
         });
     }
@@ -176,7 +176,7 @@
         document.querySelector('#resultTable tbody').innerHTML = "";
         document.getElementById('statBox').style.display = 'none';
         console.clear();
-        notify("সব ক্লিয়ার করা হয়েছে!");
+        notify("Everything has been cleared.");
     }
 </script>
 
