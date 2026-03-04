@@ -27,7 +27,9 @@
         .status-checking { color: #f39c12; animation: blink 1s infinite; font-weight: bold; }
         
         .action-btn { text-decoration: none; color: white; background: #3498db; padding: 5px 10px; border-radius: 4px; font-size: 11px; margin-right: 5px; font-weight: bold; }
-        .copy-btn { background: #9b59b6; cursor: pointer; border: none; color: white; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .copy-btn { background: #9b59b6; cursor: pointer; border: none; color: white; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-right: 5px; }
+        /* ডিলিট বাটনের স্টাইল */
+        .del-btn { background: #c0392b; cursor: pointer; border: none; color: white; padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; }
         
         @keyframes blink { 50% { opacity: 0.5; } }
         #toast { position: fixed; bottom: 20px; right: 20px; background: #2c3e50; color: white; padding: 12px 20px; border-radius: 6px; display: none; z-index: 1000; }
@@ -39,7 +41,7 @@
     <h2>Web Site live check </h2>
     
     <div class="stats" id="statBox" style="display:none;">
-        <div style="color:#2c3e50">Totall: <span id="total">0</span></div>
+        <div style="color:#2c3e50">Total: <span id="total">0</span></div>
         <div style="color:#27ae60">Live: <span id="live">0</span></div>
         <div style="color:#e74c3c">Dead: <span id="dead">0</span></div>
     </div>
@@ -55,16 +57,16 @@
     <table id="resultTable">
         <thead>
             <tr>
-                <th style="width: 50%;"> Website URL </th>
+                <th style="width: 40%;"> Website URL </th>
                 <th style="width: 20%;"> Status </th>
-                <th style="width: 30%;"> Action </th>
+                <th style="width: 40%;"> Action </th>
             </tr>
         </thead>
         <tbody></tbody>
     </table>
 </div>
 
-<div id="toast">কপি হয়েছে!</div>
+<div id="toast">কপি হয়েছে!</div>
 
 <script>
     let activeChecking = false;
@@ -78,13 +80,31 @@
     }
 
     function copyVal(val) {
-        navigator.clipboard.writeText(val).then(() => notify("কপি হয়েছে!"));
+        navigator.clipboard.writeText(val).then(() => notify("কপি হয়েছে!"));
+    }
+
+    // ম্যানুয়াল ডিলিট ফাংশন
+    function deleteRow(btn) {
+        const row = btn.closest('tr');
+        row.remove();
+        updateStats();
+        notify("মুছে ফেলা হয়েছে!");
+    }
+
+    // স্ট্যাটাস সংখ্যা আপডেট করার ফাংশন
+    function updateStats() {
+        const rows = document.querySelectorAll('#resultTable tbody tr');
+        const liveRows = document.querySelectorAll('.status-live').length;
+        const deadRows = document.querySelectorAll('.status-dead').length;
+        
+        document.getElementById('total').innerText = rows.length;
+        document.getElementById('live').innerText = liveRows;
+        document.getElementById('dead').innerText = deadRows;
     }
 
     async function checkSite(url) {
         if (!url.startsWith('http')) url = 'https://' + url;
         
-        // মেথড ১: সরাসরি No-CORS রিকোয়েস্ট (সবচেয়ে দ্রুত)
         try {
             const controller = new AbortController();
             const id = setTimeout(() => controller.abort(), 5000);
@@ -92,7 +112,6 @@
             clearTimeout(id);
             return true;
         } catch (e) {
-            // মেথড ২: যদি সরাসরি না হয়, তবে ৪টি শক্তিশালী প্রক্সি দিয়ে ট্রাই করবে
             const proxies = [
                 `https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&url=${encodeURIComponent(url)}`,
                 `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
@@ -134,10 +153,12 @@
             sCell.innerHTML = '<span class="status-checking">Checking...</span>';
             const aCell = row.insertCell(2);
 
-            // অ্যাকশন বাটন
             const vUrl = line.startsWith('http') ? line : 'https://' + line;
-            aCell.innerHTML = `<button class="copy-btn" onclick="copyVal('${line}')">Copy</button>
-                               <a href="${vUrl}" target="_blank" class="action-btn">Visit</a>`;
+            
+            // অ্যাকশন কলামে Copy এবং Visit বাটন
+            let actionHtml = `<button class="copy-btn" onclick="copyVal('${line}')">Copy</button>
+                              <a href="${vUrl}" target="_blank" class="action-btn">Visit</a>`;
+            aCell.innerHTML = actionHtml;
 
             const isLive = await checkSite(line);
 
@@ -147,6 +168,8 @@
             } else {
                 sCell.innerHTML = '<span class="status-dead">Dead / Blocked</span>';
                 row.classList.add('dead-row');
+                // শুধু Dead হলে Delete বাটন যোগ হবে
+                aCell.innerHTML += `<button class="del-btn" onclick="deleteRow(this)">Delete</button>`;
                 dCount++;
             }
             document.getElementById('live').innerText = lCount;
@@ -182,7 +205,3 @@
 
 </body>
 </html>
-
-
-
-
